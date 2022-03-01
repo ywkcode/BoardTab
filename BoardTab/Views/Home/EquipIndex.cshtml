@@ -1,0 +1,353 @@
+﻿@{
+    ViewData["Title"] = "大屏录入";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="~/lib/layui/layui.all.js"></script>
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <style type="text/css">
+        .layui-table-cell {
+            /*height: auto !important;
+                    white-space:pre-line;*/
+            padding: 0px 1px !important;
+        }
+
+
+        .layui-input-block {
+            min-height: 23px !important;
+            margin-left: 0px !important;
+        }
+
+           .layui-table-cell {
+            height: auto !important;
+            white-space: pre-line;
+            padding:3px 1px !important;
+        }
+        th .layui-table-cell 
+        {
+            line-height: 15px !important;
+            text-align:center;
+        }
+        td .layui-table-cell {
+            line-height: 17px !important;
+        }
+        .layui-input-block {
+            min-height: 30px !important;
+            margin-left:0px !important;
+        }
+        .layui-table td {
+          padding:1px 0px !important; 
+        }
+    </style>
+</head>
+<body>
+    <div style="margin-top: 5px;">
+    </div>
+    <div class="layui-btn-container" style="float:right">
+        <h2 style="text-align:center;margin:10px">滚动内容编辑</h2>
+        <button class="layui-btn layui-btn-sm" data-type="add">新增一行</button>
+        <button class="layui-btn layui-btn-sm" data-type="save">保存</button>
+        <a class="layui-btn layui-btn-sm" href="@Url.Action("EquipViewIndex","Home")" style="display:none">查看</a>
+    </div>
+
+    <table id="mainList" lay-filter="mainList" class="layui-table"
+           lay-size="sm"></table>
+
+    <script type="text/html" id="Operate">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="btndel">删除</a>
+    </script>
+
+    <h2 style="text-align:center;margin:10px">进度与计划编辑</h2>
+    <div class="layui-btn-container" style="float:right">
+        <button class="layui-btn layui-btn-sm" data-type="add2">新增一行</button>
+        <button class="layui-btn layui-btn-sm" data-type="save2">保存</button>
+    </div>
+
+    <table id="mainList2" lay-filter="mainList2" class="layui-table"
+           lay-size="sm"></table>
+
+    <div class="layui-input-block">
+        通知内容：<input type="text" name="Message" id="Message" required placeholder="@ViewBag.Message" value="@ViewBag.Message" autocomplete="off" class="layui-input">
+        <br />
+        时间间隔：<input type="text" name="title" id="TimeOut" required lay-verify="required" placeholder="@ViewBag.TimeOut" value="@ViewBag.TimeOut" autocomplete="off" class="layui-input" style="width:100px;display:inline-block">(秒)
+    </div>
+    <script type="text/html" id="Operate2">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="btndel2">删除</a>
+    </script>
+
+    @section Scripts{
+    <script type="text/javascript">
+
+        var index;
+        layui.use(['layer', 'table', "tree"], function ()
+        {
+            var form = layui.form,
+                layer = layui.layer,
+                 util = layui.util;
+                $ = layui.jquery;
+            var  Layuitable = layui.table;
+            var columns = [
+                { checkbox: true, fixed: true },
+                { field: 'Number', title: '型号',edit: 'text' },
+                { field: 'PlanCount', title: '计划量', edit: 'text' },
+                { field: 'InStockCount', title: '入库量',   edit: 'text' },
+                { field: 'Remarks', title: '备注', edit: 'text' },
+                { field: 'OperateA', title: '操作', toolbar: '#Operate' }
+            ];
+              var columns2 = [
+                { checkbox: true, fixed: true },
+                { field: 'CreateTime', title: '时间（-分隔）',edit: 'text' },
+                { field: 'ModuleA', title: '型号1', edit: 'text' },
+                { field: 'ModuleAPlanCount', title: '计划量',   edit: 'text' },
+                { field: 'ModuleAInStockCount', title: '入库量', edit: 'text' },
+                { field: 'ModuleACustomer', title: '客户',  edit: 'text' },
+                { field: 'ModuleB', title: '型号2', edit: 'text' },
+                { field: 'ModuleBPlanCount', title: '计划量',   edit: 'text' },
+                { field: 'ModuleBInStockCount', title: '入库量', edit: 'text' },
+                { field: 'ModuleBCustomer', title: '客户',  edit: 'text' },
+                { field: 'Operate', title: '操作', toolbar: '#Operate2' }
+            ];
+            var tableData = [];
+            var tableData2 = [];
+            Array.prototype.indexOf = function (val) {
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i] == val) return i;
+                }
+                return -1;
+            };
+            Array.prototype.remove = function (val) {
+                var index = this.indexOf(val);
+                if (index > -1) {
+                    this.splice(index, 1);
+                }
+            };
+            $.ajax({
+                url: '/Home/All'
+                , type: "get"
+                , async: false
+                , dataType: "json"
+                , success: function (result) {
+                    if (result && result.data) {
+                        tableData = result.data;
+                    }
+                }
+            });
+              $.ajax({
+                url: '/Home/AllChild'
+                , type: "get"
+                , async: false
+                , dataType: "json"
+                , success: function (result) {
+                    if (result && result.data) {
+                        tableData2 = result.data;
+                    }
+                }
+            });
+
+            Layuitable.render({
+                // skin: 'line', //行边框风格
+                even: false,//开启隔行背景
+                size: 'sm', //小尺寸的表格
+              /*  height: auto,*/
+                elem: '#mainList'
+                //page: true, //开启分页
+               // url: '/Home/All',
+               // ,limits: [30,60,90]
+                , limit: 500 //每页默认显示的数量,
+                // ,toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                , cols: [columns]
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                },
+                data: tableData,
+                loading: true
+            });
+            Layuitable.render({
+                // skin: 'line', //行边框风格
+                even: false,//开启隔行背景
+                size: 'sm', //小尺寸的表格
+              /*  height: auto,*/
+                elem: '#mainList2'
+                //page: true, //开启分页
+               // url: '/Home/All',
+               // ,limits: [30,60,90]
+                , limit: 500 //每页默认显示的数量,
+                // ,toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                , cols: [columns2]
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                },
+                data: tableData2,
+                loading: true
+            });
+
+
+
+            //主列表加载，可反复调用进行刷新
+            var config = {};  //table的参数，如搜索key，点击tree的id
+            var noticeval = " ";
+              //头工具栏事件
+            Layuitable.on('tool(mainList)', function (obj) {
+
+                if (obj.event == 'btndel')
+                {
+                    obj.del();
+                }
+
+              });
+
+           Layuitable.on('tool(mainList2)', function (obj) {
+
+                if (obj.event == 'btndel2')
+                {
+                    obj.del();
+                }
+
+              });
+
+            //监听单元格编辑
+            Layuitable.on('edit(mainList)', function (obj) {
+                var value = obj.value //得到修改后的值
+                    , data = obj.data //得到所在行所有键值
+                    , field = obj.field; //得到字段
+                /*layer.msg('[ID: ' + data.id + '] ' + field + ' 字段更改值为：' + util.escape(value));*/
+            });
+
+             //监听单元格编辑
+            Layuitable.on('edit(mainList2)', function (obj) {
+                var value = obj.value //得到修改后的值
+                    , data = obj.data //得到所在行所有键值
+                    , field = obj.field; //得到字段
+                /*layer.msg('[ID: ' + data.id + '] ' + field + ' 字段更改值为：' + util.escape(value));*/
+            });
+
+             //监听页面主按钮操作
+             var active = {
+                 save: function ()
+                 {
+
+                     var dataList = getDataList("mainList");//table的id
+                     $.ajax({
+                         url: '/Home/Add',
+                         type: "POST",
+                         traditional: true,//传数组一定要加的
+                         data: { "datalist": JSON.stringify(dataList) },
+                         dataType: "json",
+                         success: function (data) {
+                             ShowNotice();
+                         }
+                     });
+                 }
+                 , save2: function ()
+                 {
+
+                     var dataList = getDataList("mainList2");//table的id
+
+                        $.ajax({
+                         url: '/Home/AddSettings',
+                         type: "POST",
+                         traditional: true,//传数组一定要加的
+                         data: { "Message": $("#Message").val(),"TimeOut":$("#TimeOut").val() },
+                         dataType: "json",
+                         success: function (data) {
+                             //ShowNotice();
+                         }
+                     });
+
+                     $.ajax({
+                         url: '/Home/AddChild',
+                         type: "POST",
+                         traditional: true,//传数组一定要加的
+                         data: { "datalist": JSON.stringify(dataList) },
+                         dataType: "json",
+                         success: function (data) {
+                             ShowNotice();
+                         }
+                     });
+                 }
+
+                 , add: function ()
+                 {  //添加
+                    var dataList = getDataList("mainList");//table的id
+                    var newData = {
+                        Numer: noticeval,
+                        PlanCount: noticeval,
+                        InStockCount: noticeval,
+                        Remarks: noticeval
+                    }
+
+                    var newDataList = dataList.concat(newData);
+                     Layuitable.reload("mainList", {
+                        data: newDataList
+                    })
+                 }
+                     , add2: function ()
+                 {  //添加
+                    var dataList = getDataList("mainList2");//table的id
+                    var newData = {
+                        CreateTime: noticeval,
+                        ModuleA: noticeval,
+                        ModuleAPlanCount: noticeval,
+                        ModuleAInStockCount: noticeval,
+                        ModuleACustomer: noticeval,
+                        ModuleB: noticeval,
+                        ModuleBPlanCount: noticeval,
+                        ModuleBInStockCount: noticeval,
+                        ModuleBCustomer: noticeval
+                    }
+
+                    var newDataList = dataList.concat(newData);
+                     Layuitable.reload("mainList2", {
+                        data: newDataList
+                    })
+                 }
+            };
+
+
+
+            $('.layui-btn').on('click', function ()
+            {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        });
+
+
+        function getDataList(tableId) {
+            var table = layui.table;
+            if (table.cache[tableId]) {
+                return table.cache[tableId];
+            }
+            return [];
+        }
+        function ShowNotice() {
+            //var noticeIndex = layer.load(1, {
+            //    shade: [0.1, '#fff'] //0.1透明度的白色背景
+            //});
+            //layer.msg("操作成功");
+            //layer.close(noticeIndex);
+            //location.reload();//弹出层结束后，刷新主页面
+
+            layer.open({
+                content: '保存成功',
+                yes: function (index, layero) {
+                    //do something
+                    location.reload();//弹出层结束后，刷新主页面
+                }
+            });
+        }
+
+
+    </script>
+
+    }
+</body>
+</html>

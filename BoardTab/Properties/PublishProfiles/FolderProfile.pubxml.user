@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\MyPrj\IIS\BoardTab</_PublishTargetUrl>
+    <History>True|2022-02-15T08:33:09.5031746Z;True|2022-02-08T14:29:32.1999307+08:00;True|2022-02-07T23:01:53.5174143+08:00;True|2022-02-07T20:55:38.4720502+08:00;True|2022-01-25T09:45:55.2818584+08:00;True|2022-01-25T09:16:51.6194884+08:00;True|2022-01-25T08:57:26.8291886+08:00;True|2022-01-19T13:45:47.2059860+08:00;True|2021-10-11T15:56:07.2658262+08:00;True|2021-10-02T21:05:23.0029066+08:00;True|2021-10-02T20:11:39.2065672+08:00;</History>
+  </PropertyGroup>
+</Project>

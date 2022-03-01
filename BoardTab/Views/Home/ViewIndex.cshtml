@@ -1,0 +1,216 @@
+﻿@{
+    ViewData["Title"] = "大屏显示";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="~/lib/layui/layui.all.js"></script>
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <style type="text/css">
+      /*  .layui-table-cell {
+            height: auto !important;
+            white-space: pre-line;
+            padding:0px 1px !important;
+        }
+        th .layui-table-cell 
+        {
+            line-height: 15px !important;
+            text-align:center;
+        }
+        td .layui-table-cell {
+            line-height: 10px !important;
+        }
+        .layui-input-block {
+            min-height: 23px !important;
+            margin-left:0px !important;
+        }
+        .layui-table td {
+          padding:1px 0px !important; 
+        }*/
+    </style>
+</head>
+<body>
+    <div style="margin-top: 5px;">
+    </div>
+
+    <div class="layui-input-block" style="text-align:center;line-height:20px !important;min-height:20px !important">
+        <span>东阳市蓝光机电科技有限公司</span><span> 当前时间</span>
+    </div>
+  
+    <table id="mainList" lay-filter="mainList" class="layui-table"
+           lay-size="sm"></table>
+
+    @section Scripts{
+        <script type="text/javascript">
+
+            var index;
+            var mytable;
+            var pagetotal;
+            var currentpage ;
+        layui.use(['layer', 'table', "tree"], function ()
+        {
+            var form = layui.form,
+                layer = layui.layer,
+                 util = layui.util;
+                $ = layui.jquery;
+            var Layuitable = layui.table;
+            mytable = layui.table;
+            var columns = [ 
+                {
+                 field: 'CreateTime', title: '型号',  align:'center'   }, 
+                { field: 'OrderNum', title: '计划量', align: 'center', width: 50  },
+                { field: 'ContractTime', title: '入库量', align: 'center', width: 55 },
+                { field: 'JichuNum', title: '达成率', align: 'center', width: 50 },
+                { field: 'HeGeNum', title: '欠完成', align: 'center', width: 70  },
+                { field: 'ShaoLuTime', title: '备注', align: 'left'  } 
+            ];
+
+            Layuitable.render({
+                // skin: 'line', //行边框风格
+                even: false,//开启隔行背景
+                size: 'sm'//小尺寸的表格
+                ,height: 'full-500 
+                , elem: '#mainList'
+              /*  , cellMinWidth:70*/
+                 ,page: true, //开启分页
+                 url: '/Home/All2',
+			    limits: [30,60,90]
+                , limit: 30 //每页默认显示的数量,
+                // ,toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                , cols: [columns]
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                }
+                //,where: {
+                //    page: currentpage,
+
+                //}
+                , parseData: function (res) {
+
+                    setTimeout(function ()
+                    {
+                    $(".layui-laypage-skip").find("input").val(res.msg);
+                    $(".layui-laypage-btn").click();
+
+                    }, @ViewBag.TimeOut);
+                }
+                ,loading: true
+            });
+
+
+
+
+            //主列表加载，可反复调用进行刷新
+            var config = {};  //table的参数，如搜索key，点击tree的id
+            var noticeval = "请输入";
+              //头工具栏事件
+            Layuitable.on('tool(mainList)', function (obj) {
+
+                if (obj.event == 'btndel')
+                {
+                    obj.del();
+                }
+
+              });
+
+
+             //监听页面主按钮操作
+             var active = {
+                 save: function ()
+                 {
+
+                     var dataList = getDataList("mainList");//table的id
+
+
+                     var checkStatus1 = Layuitable.checkStatus('mainList');
+                     var checkStatus = Layuitable.checkStatus('mainList');
+                     console.log(checkStatus.data)//选中行数据
+                     debugger;
+                     $.ajax({
+                         url: '/Home/Add',
+                         type: "POST",
+                         traditional: true,//传数组一定要加的
+                         data: { "datalist": JSON.stringify(dataList) },
+                         dataType: "json",
+                         success: function (data) {
+                             ShowNotice();
+                         }
+                     });
+                 }
+                 , add: function () {  //添加
+
+                    var dataList = getDataList("mainList");//table的id
+                    var newData = {
+                        Name: noticeval
+                        , Age: noticeval
+                    }
+
+                    var newDataList = dataList.concat(newData);
+                     Layuitable.reload("mainList", {
+                        data: newDataList
+                    })
+
+                }
+
+
+                , btnSearch: function () {   //搜索
+
+                    Layuitable.reload('mainList', {
+                        url: '/FrameUser/All2',
+                        where: {
+                            UserName:$("#UserName").val()
+                        }
+                        , response: {
+                            statusCode: 200 //规定成功的状态码，默认：0
+                        }
+                    });
+
+                }
+
+            };
+
+
+
+            $('.layui-btn').on('click', function ()
+            {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        });
+
+
+        function Create() {
+              index = layer.open
+                ({
+                    type: 2,
+                    title:'新建',
+                    content: '@Url.Action("Create", "FrameUser")',
+                    area: ['700px', '650px'],
+                    btnAlign: 'c',
+                });
+        }
+     
+    
+
+        function getDataList(tableId) {
+            var table = layui.table;
+            if (table.cache[tableId]) {
+                return table.cache[tableId];
+            }
+            return [];
+        }
+       
+
+
+        </script>
+
+    }
+</body>
+</html>

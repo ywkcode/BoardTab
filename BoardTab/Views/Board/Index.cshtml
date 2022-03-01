@@ -1,0 +1,385 @@
+﻿@{
+    ViewData["Title"] = "大屏显示";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <met.table_timecharset="utf-8">
+    <title>显示</title>
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/js/vue.global.js"></script>
+    <script src="~/js/axios.min.js"></script>
+    @*<script src="https://unpkg.com/axios/dist/axios.min.js"></script>*@
+    <style>
+        .table_tab td,
+        .table_tab th {
+            font-size: 28px !important;
+              border-color: #000000 !important;
+            font-weight: 800 !important; 
+            padding: 14px 5px !important;
+            position: none !important;
+        }
+        .table_time td,
+        .table_time th{
+            border-color: #000000 !important;
+            font-weight: 800 !important;
+            font-size: 12px;
+            padding: 5px 5px !important;
+            position: none !important;
+        }
+
+       
+
+        tbody td, th {
+            text-align: center !important;
+            font-weight: 800 !important;
+        }
+
+        .bg_Class {
+          /*  background-color: #FF66FF;
+            color: white;*/
+        }
+
+        .nbg_Class {
+            background-color: yellow;
+        }
+          .nbg_Class1 {
+            background-color: #5eaaf9;
+            color:yellow;
+        }
+        
+        .dis_Class {
+            color: yellow;
+            background-color: red;
+        }
+
+        .arrow_red {
+           /* width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid red;
+            display: block;
+            position: absolute;
+            left: 74px;
+            top: 15px;*/
+        }
+
+        .arrow_normal {
+         /*   width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid black;
+            display: block;
+            position: absolute;
+            left: 74px;
+            top: 15px;*/
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header" style="position:relative;margin:10px;font-size:20px">
+            <p style="text-align:left;font-weight:bold;padding-left:50px">{{message}}</p>
+            <span style="position:absolute;right:50px;top:0px;font-weight:bold">{{currentday}}</span>
+        </div>
+        <div class="layui-row" style="padding: 8px 50px;">
+            <div style="width:100%; display:block;" class="table_tab">
+                <div>
+                    <table class="layui-table" style="border:5px solid black">
+                        <colgroup>
+                            <col width="25%">
+                            <col width="25%">
+                            <col width="25%">
+                            <col width="25%">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th>当日计划数量</th>
+                                <th>当前计划数量</th>
+                                <th>实际数量</th>
+                                <th>差异数量</th>
+                            </tr>
+                            <tr>
+                                <td>{{getArea(plan_d)}}</td>
+                                <td class="nbg_Class">{{getArea(plancount_d) }}</td>
+                                <td class="nbg_Class">{{getArea(actualnum_d) }}</td>
+                                <td :class="actualdisnum_d_class"><span :class="actualdisnum_d_span_class"></span><span style="padding-left:24px;display:inline-block">{{getArea(actualdisnum_d) }}</span></td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+            <div style="width:100%; display: block;margin-top:10px" class="table_tab">
+                <div>
+                    <table class="layui-table" style="border:2px solid black">
+                        <colgroup>
+                            <col width="25%">
+                            <col width="25%">
+                            <col width="25%">
+                            <col width="25%">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                               <th>本月计划数量</th>
+                                <th>当前计划数量</th>
+                                <th>实际数量</th>
+                                <th>差异数量</th>
+                            </tr>
+                            <tr>
+                                <td>{{getArea(plan_m)}}</td>
+                                <td class="nbg_Class">{{getArea(plancount_m)}}</td>
+                                 <td class="nbg_Class">{{getArea(actualnum_m)}}</td>
+                                <td :class="actualdisnum_m_class"><span :class="actualdisnum_m_span_class"></span><span style="padding-left:24px;display:inline-block">{{getArea(actualdisnum_m) }}</span></td>
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            @* <div style="width:49%; display: inline-block;" class="table_tab">
+                <div>
+                <table class="layui-table" style="border:2px solid black">
+                <colgroup>
+                <col width="50%">
+                <col width="50%">
+                </colgroup>
+                <tbody>
+                <tr>
+                <th>当日计划数量</th>
+                <th>当前计划数量</th>
+                </tr>
+                <tr>
+                <td>{{getArea(plan_d)}}</td>
+                <td class="nbg_Class">{{getArea(plancount_d) }}</td>
+                </tr>
+                <tr style="min-height: 3px !important;">
+                <td colspan="2" style="padding: 2px 0px !important;"></td>
+                </tr>
+                <tr>
+                <th>实际数量</th>
+                <th>差异数量</th>
+                </tr>
+                <tr>
+                <td class="nbg_Class">{{getArea(actualnum_d) }}</td>
+                <td :class="actualdisnum_d_class"><span :class="actualdisnum_d_span_class"></span><span style="padding-left:24px;display:inline-block">{{getArea(actualdisnum_d) }}</span></td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+
+                </div>
+                <div style="width:49%;float: right; display: inline-block;"  class="table_tab">
+                <div>
+                <table class="layui-table" style="border:2px solid black">
+                <colgroup>
+                <col width="50%">
+                <col width="50%">
+                </colgroup>
+                <tbody>
+                <tr>
+                <th>本月计划总数</th>
+                <th>当前计划数量</th>
+                </tr>
+                <tr>
+                <td>{{getArea(plan_m)}}</td>
+                <td class="nbg_Class">{{getArea(plancount_m)}}</td>
+                </tr>
+                <tr style="min-height: 3px !important;">
+                <td colspan="2" style="padding: 2px 0px !important;"></td>
+                </tr>
+                <tr>
+                <th>实际数量</th>
+                <th>差异数量</th>
+                </tr>
+                <tr>
+                <td class="nbg_Class">{{getArea(actualnum_m)}}</td>
+                <td :class="actualdisnum_m_class"><span :class="actualdisnum_m_span_class"></span><span style="padding-left:24px;display:inline-block">{{getArea(actualdisnum_m) }}</span></td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                </div>*@
+            <table class="layui-table table_time" style="margin-top: 20px;border:1px solid black">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th v-for="(item,index) in firsttime" :class="item.classname">{{item.value}}</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>目标</td>
+                        <th v-for="(item,index) in firstplannum" :class="item.classname">{{item.mynum}}</th>
+                    </tr>
+                    <tr>
+                        <td>实际</td>
+                        <td v-for="(item,index) in factuallist" :class="item.classname">{{item.mynum}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <table class="layui-table table_time" style="margin-top: 20px;border:1px solid black">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th v-for="(item,index) in secondtime" :class="item.classname">{{item.value}}</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>目标</td>
+                        <th v-for="(item,index) in secondplannum" :class="item.classname">{{item.mynum}}</th>
+                    </tr>
+                    <tr>
+                        <td>实际</td>
+                        <td v-for="(item,index) in sactuallist" :class="item.classname">{{item.mynum}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    const VueApp = {
+        data() {
+            return {
+                onetime:"",
+                fivetime:"",
+
+                message: "",
+                currentday:"",
+
+                index:10,
+
+                plan_d:0,
+                plan_m:0,
+
+                firsttime:[],
+                firstplannum:[],
+
+                secondtime:[],
+                secondplannum:[],
+                plancount_d:0,
+                plancount_m:0,
+
+                actualnum_d:0,
+                actualnum_m:0,
+                actualdisnum_d:0,
+                actualdisnum_m:0,
+
+                actualdisnum_d_class:"",
+                actualdisnum_d_span_class:"",
+                actualdisnum_m_class:"",
+                 actualdisnum_m_span_class:"",
+
+                factuallist:[],
+                sactuallist:[]
+            }
+        },
+
+        methods:{
+            getArea: function(area) {
+                    return String(area).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            },
+            loadftime:function(){
+              axios
+              .get('/board/time',{params:{IsFirst:true}})
+              .then(response => {
+               this.firsttime = response.data.timelist;
+               this.firstplannum = response.data.timenum;
+              })
+              .catch(function (error) { // 请求失败处理
+                console.log(error);
+              });
+            },
+             loadstime:function()
+             {
+               axios
+                  .get('/board/time',{params:{IsFirst:false}})
+                  .then(response =>{
+                    this.secondtime = response.data.timelist;
+                    this.secondplannum = response.data.timenum;
+                  })
+                  .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                 });
+             },
+             loadfive:function()
+             {
+                  axios
+                  .get('/board/five')
+                  .then(response =>
+                   {
+                       this.plan_d=response.data.planNumd;
+                       this.plan_m=response.data.planNumM;
+                      this.plancount_d = response.data.currentPlanNumd;
+                      this.plancount_m = response.data.currentPlanNumM;
+                      this.message=response.data.message;
+                      this.currentday=response.data.currentDay;
+                      console.log("plancount_d:"+this.plancount_d);
+                   })
+                  .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+             },
+             loadone:function()
+             {
+               axios
+                  .get('/board/one')
+                  .then(response =>
+                   {
+                       console.log(response.data);
+                        this.actualnum_d = response.data.actualNumd;
+                        this.actualdisnum_d = response.data.actualDisNumd.mynum;
+                        this.actualdisnum_d_class= response.data.actualDisNumd.classname;
+                        //this.actualdisnum_d_span_class=(this.actualdisnum_d_class=="dis_Class"?"arrow_red":"arrow_normal");
+                        this.actualdisnum_d_span_class=(this.actualdisnum_d_class=="dis_Class"?"arrow_red":"");
+                        this.actualnum_m = response.data.actualNumM;
+                        this.actualdisnum_m = response.data.actualDisNumM.mynum;
+                        this.actualdisnum_m_class= response.data.actualDisNumM.classname;
+                        //this.actualdisnum_m_span_class=(this.actualdisnum_m_class=="dis_Class"?"arrow_red":"arrow_normal");
+                        this.actualdisnum_m_span_class=(this.actualdisnum_m_class=="dis_Class"?"arrow_red":"");
+                        this.factuallist = response.data.fActualList;
+                        this.sactuallist = response.data.sActualList;
+                   })
+                  .catch(function (error) { // 请求失败处理
+                    console.log(error);
+            });
+             }
+        }
+        ,
+        mounted ()
+        {
+            this.loadftime();
+            this.loadstime();
+            this.loadfive();
+            this.loadone();
+            var that = this;
+            that.onetime=setInterval(function(){
+                console.log("开始轮询")
+                  that.loadone();
+                  that.loadstime();
+            },5000);
+            that.fivetime=setInterval(function(){
+                  that.loadfive();
+                  that.loadftime();
+            },5000);
+        }
+        ,
+        beforeDestroy() {
+          clearInterval(this.onetime);
+           clearInterval(this.fivetime);
+        }
+
+    }
+    Vue.createApp(VueApp).mount("#app")
+</script>
+</html>

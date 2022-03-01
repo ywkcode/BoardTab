@@ -1,0 +1,511 @@
+﻿@{
+    ViewData["Title"] = "大屏显示";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="~/lib/layui/layui.all.js"></script>
+    <script src="~/js/jquery-1.11.0.min.js"></script>
+    @*<script src="~/js/jquery.marquee.js"></script>*@
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <style type="text/css">
+
+        .layui-table-main {
+            border-bottom: 3px solid black;
+        }
+
+        .layui-table-page {
+            display: none;
+        }
+
+        .layui-table-cell {
+            height: auto !important;
+            white-space: pre-line;
+            padding: 4px 1px !important;
+        }
+
+        thead .layui-table-cell {
+            height: auto !important;
+            white-space: pre-line;
+            padding: 1px 1px !important;
+        }
+
+        th .layui-table-cell {
+            line-height: 15px !important;
+            text-align: center;
+        }
+
+        td .layui-table-cell {
+            line-height: 17px !important;
+        }
+
+        .layui-input-block {
+            min-height: 30px !important;
+            margin-left: 0px !important;
+        }
+
+        .layui-table td {
+            padding: 1px 0px !important;
+        }
+
+        .tr_font td {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .tr_font th {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .layui-table-header th {
+            font-weight: bold;
+        }
+
+        .mytable td, th {
+            font-size: 12px !important;
+            text-align: center;
+        }
+
+        .mytable thead th {
+            padding: 1px 15px;
+        }
+
+
+        .marquee {
+            overflow: hidden;
+            border: 0px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin-top: 5px;">
+    </div>
+
+    <div class="layui-input-block" style="text-align:center;line-height:25px !important;min-height:25px !important;margin:0px;">
+        <h2 style="display:inline-block;font-weight:bold">东阳市蓝光机电科技有限公司</h2><span style="position:absolute;right:6%;top:5px">@ViewBag.NowDate</span>
+    </div>
+
+    <table id="mainList" lay-filter="mainList" class="layui-table"
+           lay-size="sm"></table>
+
+
+    <div class="layui-form" style="position:absolute;bottom:0px;width:100%" id="allRefresh">
+        <div class="layui-row" style="text-align:center;line-height:25px !important;min-height:25px !important;">
+            <h2 style="display:inline-block;font-weight:bold;margin-top:15px">进度与计划</h2>
+        </div>
+        <script src="~/js/jquery.marquee.js"></script>
+        <script type="text/javascript">
+
+            $(function () 
+          {
+                $(".marquee").width(($(window).width()-20) + "px");
+                InitialSehedule();
+                LoadMarquee();
+                setInterval(function () {
+                    InitialSehedule();
+                }, 5000);
+
+                setInterval(function () {
+                    InitialMessage();
+                }, 60000);
+            });
+
+            function LoadMarquee() {
+                $('.marquee').marquee({
+                    speed: 100,
+                    gap: 50,
+                    delayBeforeStart: 0,
+                    direction: 'left',
+                    duplicated: false,
+                    duration: 100
+                });
+            }
+
+            function InitialSehedule() {
+                $.ajax({
+                    url: '/Home/Initial'
+                    , type: "get"
+                    , async: false
+                    , dataType: "json"
+                    , success: function (result) {
+                        if (result && result.data) {
+                            var myresult = result.data;
+                            var timelist = myresult.TimeList;
+                            $("#tr_time").empty();
+                            $("#tr_modulea").empty();
+                            $("#tr_moduleacount").empty();
+                            $("#tr_moduleacustomer").empty();
+                            $("#tr_moduleb").empty();
+                            $("#tr_modulebcount").empty();
+                            $("#tr_modulebcustomer").empty();
+                            //$("#tr_message").empty();
+                            for (var i = 0; i < timelist.length; i++) {
+                                $("#tr_time").append(" <th colspan=3>" + timelist[i] + "</th>")
+                            }
+                            for (var i = 0; i < myresult.ModuleA.length; i++) {
+                                $("#tr_modulea").append(" <td style='font-weight:bold'>型号</td> <td colspan=2 style='text-align:left !Important'>" + myresult.ModuleA[i] + "</td>")
+                            }
+                            for (var i = 0; i < myresult.ModuleACount.length; i++) {
+                                $("#tr_moduleacount").append(" <td style='font-weight:bold'>数量</td><td style='text-align:left !Important'>" + myresult.ModuleACount[i].split(',')[0] + "</td> <td style='text-align:left !Important'>" + myresult.ModuleACount[i].split(',')[1] + "</td> ")
+                            }
+                            for (var i = 0; i < myresult.ModuleACustomer.length; i++) {
+                                $("#tr_moduleacustomer").append("<td style='font-weight:bold'>客户</td><td colspan=2  style = 'text-align:left !Important' >" + myresult.ModuleACustomer[i] + "</td>")
+                            }
+
+                            for (var i = 0; i < myresult.ModuleB.length; i++) {
+                                $("#tr_moduleb").append(" <td style='font-weight:bold'>型号</td> <td colspan=2 style='text-align:left !Important'>" + myresult.ModuleB[i] + "</td>")
+                            }
+                            for (var i = 0; i < myresult.ModuleBCount.length; i++) {
+                                $("#tr_modulebcount").append(" <td style='font-weight:bold'>数量</td><td style='text-align:left !Important'>" + myresult.ModuleBCount[i].split(',')[0] + "</td> <td style='text-align:left !Important'>" + myresult.ModuleACount[i].split(',')[1] + "</td> ")
+                            }
+                            for (var i = 0; i < myresult.ModuleBCustomer.length; i++) {
+                                $("#tr_modulebcustomer").append("<td style='font-weight:bold'>客户</td><td colspan=2  style = 'text-align:left !Important' >" + myresult.ModuleBCustomer[i] + "</td>")
+                            }
+                            //$("#tr_message").append("<h2>" + myresult.Message+"</h2>");
+                            // LoadMarquee();
+                        }
+                    }
+                });
+            }
+
+            function InitialMessage() {
+                $.ajax({
+                    url: '/Home/Initial'
+                    , type: "get"
+                    , async: false
+                    , dataType: "json"
+                    , success: function (result) {
+                        if (result && result.data) {
+                            var myresult = result.data;
+                            var timelist = myresult.TimeList;
+                          
+                            $("#tr_message").empty(); 
+                            $("#tr_message").append("<h2>" + myresult.Message+"</h2>");
+                             LoadMarquee();
+                        }
+                    }
+                });
+            }
+          
+        </script>
+        <table class="layui-table mytable">
+
+            <thead>
+
+                <tr style="text-align:center" class="tr_font" id="tr_time">
+                    @*@foreach (var value in ViewBag.TimeList)
+                        {
+                        <th colspan=3>@value</th>
+                        }*@
+                </tr>
+                <tr class="tr_font">
+                    <td>昨天</td>
+                    <td>计划量</td>
+                    <td>入库量</td>
+
+                    <td>今天</td>
+                    <td>计划量</td>
+                    <td>入库量</td>
+
+                    <td>明天</td>
+                    <td>计划量</td>
+                    <td>入库量</td>
+
+                    <td>后天</td>
+                    <td>计划量</td>
+                    <td>入库量</td>
+
+                    <td>次后</td>
+                    <td>计划量</td>
+                    <td>入库量</td>
+                </tr>
+            </thead>
+            <tbody>
+
+
+                <tr id="tr_modulea">
+                    @*@foreach (var value in ViewBag.ModuleA)
+                        {
+                        <td style="font-weight:bold">型号</td>
+                        <td colspan=2 style="text-align:left !Important">@value</td>
+
+                        }*@
+                </tr>
+                <tr id="tr_moduleacount">
+
+                    @*@foreach (var value in ViewBag.ModuleACount)
+                        {
+                        <td style="font-weight:bold">数量</td>
+                        <td style="text-align:left !Important">@value.Split(',')[0]</td>
+                        <td style="text-align:left !Important">@value.Split(',')[1]</td>
+                        }*@
+
+                </tr>
+                <tr id="tr_moduleacustomer">
+
+                    @*@foreach (var value in ViewBag.ModuleACustomer)
+                        {
+                        <td style="font-weight:bold">客户</td>
+
+                        <td colspan=2 style="text-align:left !Important">@value</td>
+                        }*@
+                </tr>
+                <tr id="tr_moduleb">
+                    @*@foreach (var value in ViewBag.ModuleB)
+                        {
+                        <td style="font-weight:bold">型号</td>
+                        <td colspan=2 style="text-align:left !Important">@value</td>
+
+                        }*@
+                </tr>
+                <tr id="tr_modulebcount">
+
+                    @*@foreach (var value in ViewBag.ModuleBCount)
+                        {
+                        <td style="font-weight:bold">数量</td>
+                        <td style="text-align:left !Important">@value.Split(',')[0]</td>
+                        <td style="text-align:left !Important">@value.Split(',')[1]</td>
+
+                        }*@
+
+                </tr>
+                <tr id="tr_modulebcustomer">
+
+                    @*@foreach (var value in ViewBag.ModuleBCustomer)
+                        {
+                        <td style="font-weight:bold">客户</td>
+
+                        <td colspan=2 style="text-align:left !Important">@value</td>
+                        }*@
+                </tr>
+                <tr>
+                    <td colspan=15 style="text-align:left !Important">
+
+                        <div class='marquee' id="tr_message"><h2> @ViewBag.Message</h2></div>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    @section Scripts{
+
+    <script type="text/javascript">
+
+
+            var index;
+            var mytable;
+            var pagetotal;
+            var currentpage ;
+        layui.use(['layer', 'table', "tree"], function ()
+        {
+            var form = layui.form,
+                layer = layui.layer,
+                 util = layui.util;
+                $ = layui.jquery;
+            var Layuitable = layui.table;
+            mytable = layui.table;
+            var columns = [
+                { field: 'Number', title: '型号'   },
+                { field: 'PlanCount', title: '计划量',   align:'center',templet:function(d){ return '<div style="text-align:left">'+d.PlanCount+'</div>'}  },
+                { field: 'InStockCount', title: '入库量' ,   align:'center' ,templet:function(d){ return '<div style="text-align:left">'+d.InStockCount+'</div>'}   },
+                { field: 'Percent', title: '达成率',  align: 'center' ,templet:function(d){ return '<div style="text-align:left">'+d.Percent+'</div>'}  },
+                { field: 'UnFinished', title: '未完成' ,   align:'center',templet:function(d){ return '<div style="text-align:left">'+d.UnFinished+'</div>'}   },
+                { field: 'Remarks', title: '备注'   }
+
+
+            ];
+
+            Layuitable.render({
+                // skin: 'line', //行边框风格
+                even: false,//开启隔行背景
+                size: 'sm'//小尺寸的表格
+               /* height: 'full-50',*/
+                , elem: '#mainList'
+              /*  , cellMinWidth:70*/
+                 ,page: true, //开启分页
+                 url: '/Home/All2',
+                limits: [30,60,90]
+                , limit: 13 //每页默认显示的数量,
+                // ,toolbar: '#toolbar', //开启头部工具栏，并为其绑定左侧模板
+                , cols: [columns]
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                }
+                //,where: {
+                //    page: currentpage,
+
+                //}
+                , parseData: function (res) {
+
+                    setTimeout(function ()
+                    {
+                    $(".layui-laypage-skip").find("input").val(res.msg);
+                    $(".layui-laypage-btn").click();
+
+                    }, @ViewBag.TimeOut);
+                }
+                ,loading: true
+            });
+
+
+
+
+            //主列表加载，可反复调用进行刷新
+            var config = {};  //table的参数，如搜索key，点击tree的id
+            var noticeval = "请输入";
+              //头工具栏事件
+            Layuitable.on('tool(mainList)', function (obj) {
+
+                if (obj.event == 'btndel')
+                {
+                    obj.del();
+                }
+
+              });
+
+
+             //监听页面主按钮操作
+             var active = {
+                 save: function ()
+                 {
+
+                     var dataList = getDataList("mainList");//table的id
+
+
+                     var checkStatus1 = Layuitable.checkStatus('mainList');
+                     var checkStatus = Layuitable.checkStatus('mainList');
+                     console.log(checkStatus.data)//选中行数据
+                     debugger;
+                     $.ajax({
+                         url: '/Home/Add',
+                         type: "POST",
+                         traditional: true,//传数组一定要加的
+                         data: { "datalist": JSON.stringify(dataList) },
+                         dataType: "json",
+                         success: function (data) {
+                             ShowNotice();
+                         }
+                     });
+                 }
+                 , add: function () {  //添加
+
+                    var dataList = getDataList("mainList");//table的id
+                    var newData = {
+                        Name: noticeval
+                        , Age: noticeval
+                    }
+
+                    var newDataList = dataList.concat(newData);
+                     Layuitable.reload("mainList", {
+                        data: newDataList
+                    })
+
+                }
+
+
+                , btnSearch: function () {   //搜索
+
+                    Layuitable.reload('mainList', {
+                        url: '/FrameUser/All2',
+                        where: {
+                            UserName:$("#UserName").val()
+                        }
+                        , response: {
+                            statusCode: 200 //规定成功的状态码，默认：0
+                        }
+                    });
+
+                }
+
+            };
+
+
+
+            $('.layui-btn').on('click', function ()
+            {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        });
+
+
+        function Create() {
+              index = layer.open
+                ({
+                    type: 2,
+                    title:'新建',
+                    content: '@Url.Action("Create", "FrameUser")',
+                    area: ['700px', '650px'],
+                    btnAlign: 'c',
+                });
+        }
+        function Delete() {
+               var table = layui.table;
+                    var checkStatus = table.checkStatus('mainList');
+                    var datas = checkStatus.data;
+                    var id = new Array();//声明数组
+                    for (var i in datas) {
+                        id[i] = datas[i].ID;//得到复选框的值
+                    }
+                    $.ajax({
+                        url: '/FrameUser/Delete',
+                        type: "POST",
+                        traditional: true,//传数组一定要加的
+                        data: { "ids": id},
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.Code == 200) {
+                                ShowNotice();
+                            }
+                        }
+                    });
+        }
+        function Edit(id) {
+             index = layer.open
+                ({
+                    type: 2,
+                    title:'编辑',
+                    content: '/FrameUser/Edit?id=' + id,
+                         area: ['500px', '300px'],
+                    btnAlign: 'c',
+                    end: function () {
+                        ShowNotice();
+                    }
+                });
+        }
+
+        function getDataList(tableId) {
+            var table = layui.table;
+            if (table.cache[tableId]) {
+                return table.cache[tableId];
+            }
+            return [];
+        }
+        function ShowNotice() {
+
+            layer.open({
+                content: '保存成功',
+                yes: function (index, layero) {
+                    //do something
+                    location.reload();//弹出层结束后，刷新主页面
+                }
+            });
+        }
+
+
+    </script>
+
+    }
+</body>
+</html>
