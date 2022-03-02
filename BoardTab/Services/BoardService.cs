@@ -190,11 +190,11 @@ namespace BoardTab.Services
                 var count = (Int64)SQLiteHelper.ExecuteScalar(sql);
                 if (count < 6)
                 {
-                    //foreach (var model in timetemplist)
-                    //{
-                    //    sql = $"insert into CurrentData(currentdate,timesettingid,targetnum,actualnum,version,xiaolv) values('{model.FromDate.ToString("yyyy-MM-dd")}','{model.Tkid}','{model.Targetnum}','0',{ConfigurationCache.Version},{model.Xiaolv})";
-                    //    SQLiteHelper.ExecuteNonQuery(sql);
-                    //}
+                    foreach (var model in timetemplist)
+                    {
+                        sql = $"insert into CurrentData(currentdate,timesettingid,targetnum,actualnum,version,xiaolv) values('{model.FromDate.ToString("yyyy-MM-dd")}','{model.Tkid}','{model.Targetnum}','0',{ConfigurationCache.Version},{model.Xiaolv})";
+                        SQLiteHelper.ExecuteNonQuery(sql);
+                    }
                 }
                 else
                 {
@@ -500,7 +500,7 @@ namespace BoardTab.Services
 
                 //月实际数量
                 sql = $"select ifnull(sum(actualnum),0) from CurrentData where  datetime(currentdate)>='{ConfigurationCache.FirstDay.ToString("yyyy-MM-dd HH:mm")}' and datetime(currentdate)<= '{ConfigurationCache.LastDay.ToString("yyyy-MM-dd 23:59")}' ";
-                LogHelper.WriteLogs($"月实际数量：{sql}");
+               // LogHelper.WriteLogs($"月实际数量：{sql}");
                 mymodel.ActualNumM = (Int64)SQLiteHelper.ExecuteScalar(sql);
 
                 //月差异数量 

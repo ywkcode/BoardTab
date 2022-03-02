@@ -1,4 +1,5 @@
-﻿using BoardTab.Services;
+﻿using BoardTab.Common;
+using BoardTab.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -28,6 +29,7 @@ namespace BoardTab.Utils
 
                     if (DateTime.Now.Hour == 5 && DateTime.Now.Minute == 0)
                     {
+                        LogHelper.WriteLogs("执行定时任务！");
                         using (var scope = ConfigurationCache.RootServiceProvider.CreateScope())
                         {
                             IBoardService service = scope.ServiceProvider.GetService<IBoardService>();
