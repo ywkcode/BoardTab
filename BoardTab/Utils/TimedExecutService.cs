@@ -27,7 +27,7 @@ namespace BoardTab.Utils
                     await Task.Delay(5000, stoppingToken); //启动后五秒执行一次
                                                            //_logger.LogInformation(DateTime.Now.ToString() + " 执行自动排障任务！");
 
-                    if (DateTime.Now.Hour == 5 && DateTime.Now.Minute == 0)
+                    if (DateTime.Now.Hour == 5 && DateTime.Now.Minute == 0&&DateTime.Now.Second==0)
                     {
                         LogHelper.WriteLogs("执行定时任务！");
                         using (var scope = ConfigurationCache.RootServiceProvider.CreateScope())
